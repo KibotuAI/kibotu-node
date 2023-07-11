@@ -1,6 +1,6 @@
-declare const mixpanel: mixpanel.Mixpanel;
+declare const kibotu: kibotu.Kibotu;
 
-declare namespace mixpanel {
+declare namespace kibotu {
   export type Callback = (err: Error | undefined) => any;
   export type BatchCallback = (errors: [Error] | undefined) => any;
 
@@ -44,8 +44,8 @@ declare namespace mixpanel {
     [key: string]: string | number
   }
 
-  interface Mixpanel {
-    init(mixpanelToken: string, config?: InitConfig): Mixpanel;
+  interface Kibotu {
+    init(kibotuToken: string, config?: InitConfig): Kibotu;
 
     track(eventName: string, callback?: Callback): void;
     track(eventName: string, properties: PropertyDict, callback?: Callback): void;
@@ -137,4 +137,4 @@ declare namespace mixpanel {
   }
 }
 
-export = mixpanel;
+export = kibotu;

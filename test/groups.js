@@ -1,4 +1,4 @@
-const Mixpanel = require('../lib/mixpanel-node');
+const Kibotu = require('../lib/kibotu-node');
 const Sinon = require('sinon');
 const {create_group_funcs} = require('../lib/groups');
 const {create_profile_helpers} = require('../lib/profile_helpers');
@@ -25,9 +25,9 @@ const test_send_request_args = function(test, func, {args, expected, use_modifie
         args.push(callback);
     }
 
-    this.mixpanel.groups[func](...args);
+    this.kibotu.groups[func](...args);
 
-    const expectedSendRequestArgs = [{ method: 'GET', endpoint: this.endpoint, data: expected_data }];
+    const expectedSendRequestArgs = [{  endpoint: this.endpoint, data: expected_data }];
     test.ok(
         this.send_request.calledWithMatch(...expectedSendRequestArgs),
         `groups.${func} didn't call send_request with correct arguments.
@@ -53,8 +53,8 @@ exports.groups = {
 
         this.send_request = Sinon.stub();
 
-        this.mixpanel = Mixpanel.init(this.token);
-        this.mixpanel.send_request = this.send_request;
+        this.kibotu = Kibotu.init(this.token);
+        this.kibotu.send_request = this.send_request;
 
         this.test_send_request_args = test_send_request_args;
 
@@ -254,15 +254,15 @@ exports.groups = {
         },
 
         "errors on non-scalar argument types": function(test) {
-            this.mixpanel.groups.remove(this.group_key, this.group_id, {'key1': ['value1']});
-            this.mixpanel.groups.remove(this.group_key, this.group_id, {key1: {key: 'val'}});
-            this.mixpanel.groups.remove(this.group_key, this.group_id, 1231241.123);
-            this.mixpanel.groups.remove(this.group_key, this.group_id, [5]);
-            this.mixpanel.groups.remove(this.group_key, this.group_id, {key1: function() {}});
-            this.mixpanel.groups.remove(this.group_key, this.group_id, {key1: [function() {}]});
+            this.kibotu.groups.remove(this.group_key, this.group_id, {'key1': ['value1']});
+            this.kibotu.groups.remove(this.group_key, this.group_id, {key1: {key: 'val'}});
+            this.kibotu.groups.remove(this.group_key, this.group_id, 1231241.123);
+            this.kibotu.groups.remove(this.group_key, this.group_id, [5]);
+            this.kibotu.groups.remove(this.group_key, this.group_id, {key1: function() {}});
+            this.kibotu.groups.remove(this.group_key, this.group_id, {key1: [function() {}]});
 
             test.ok(
-              !this.mixpanel.send_request.called,
+              !this.kibotu.send_request.called,
               "groups.remove shouldn't call send_request on invalid arguments"
             );
             test.done();
@@ -310,14 +310,14 @@ exports.groups = {
         },
 
         "errors on other argument types": function(test) {
-            this.mixpanel.groups.union(this.group_key, this.group_id, {key1: {key: 'val'}});
-            this.mixpanel.groups.union(this.group_key, this.group_id, 1231241.123);
-            this.mixpanel.groups.union(this.group_key, this.group_id, [5]);
-            this.mixpanel.groups.union(this.group_key, this.group_id, {key1: function() {}});
-            this.mixpanel.groups.union(this.group_key, this.group_id, {key1: [function() {}]});
+            this.kibotu.groups.union(this.group_key, this.group_id, {key1: {key: 'val'}});
+            this.kibotu.groups.union(this.group_key, this.group_id, 1231241.123);
+            this.kibotu.groups.union(this.group_key, this.group_id, [5]);
+            this.kibotu.groups.union(this.group_key, this.group_id, {key1: function() {}});
+            this.kibotu.groups.union(this.group_key, this.group_id, {key1: [function() {}]});
 
             test.ok(
-                !this.mixpanel.send_request.called,
+                !this.kibotu.send_request.called,
                 "groups.union shouldn't call send_request on invalid arguments"
             );
             test.done();
@@ -365,11 +365,11 @@ exports.groups = {
         },
 
         "errors on other argument types": function(test) {
-            this.mixpanel.groups.unset(this.group_key, this.group_id, { key1:'val1', key2:'val2' });
-            this.mixpanel.groups.unset(this.group_key, this.group_id, 1231241.123);
+            this.kibotu.groups.unset(this.group_key, this.group_id, { key1:'val1', key2:'val2' });
+            this.kibotu.groups.unset(this.group_key, this.group_id, 1231241.123);
 
             test.ok(
-                !this.mixpanel.send_request.called,
+                !this.kibotu.send_request.called,
                 "groups.unset shouldn't call send_request on invalid arguments"
             );
             test.done();

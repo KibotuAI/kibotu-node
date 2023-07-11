@@ -1,17 +1,17 @@
-var Mixpanel    = require('../lib/mixpanel-node'),
+var Kibotu    = require('../lib/kibotu-node'),
     Sinon       = require('sinon');
 
 exports.alias = {
     setUp: function(next) {
-        this.mixpanel = Mixpanel.init('token', { key: 'key' });
+        this.kibotu = Kibotu.init('token', { key: 'key' });
 
-        Sinon.stub(this.mixpanel, 'send_request');
+        Sinon.stub(this.kibotu, 'send_request');
 
         next();
     },
 
     tearDown: function(next) {
-        this.mixpanel.send_request.restore();
+        this.kibotu.send_request.restore();
 
         next();
     },
@@ -29,10 +29,10 @@ exports.alias = {
                 }
             };
 
-        this.mixpanel.alias(distinct_id, alias);
+        this.kibotu.alias(distinct_id, alias);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "alias didn't call send_request with correct arguments"
         );
 

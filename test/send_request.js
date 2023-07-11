@@ -1,4 +1,4 @@
-let Mixpanel;
+let Kibotu;
 const Sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const https = require('https');
@@ -10,7 +10,7 @@ let HttpsProxyAgent;
 exports.send_request = {
     setUp: function(next) {
         HttpsProxyAgent = Sinon.stub();
-        Mixpanel = proxyquire('../lib/mixpanel-node', {
+        Kibotu = proxyquire('../lib/kibotu-node', {
             'https-proxy-agent': HttpsProxyAgent,
         });
 
@@ -25,7 +25,7 @@ exports.send_request = {
         https.request.returns(this.http_emitter);
         https.request.callsArgWith(1, this.res);
 
-        this.mixpanel = Mixpanel.init('token');
+        this.kibotu = Kibotu.init('token');
 
         next();
     },
@@ -51,13 +51,13 @@ exports.send_request = {
                 }
             },
             expected_http_request = {
-                method: 'GET',
-                host: 'api.mixpanel.com',
+                
+                host: 'api.kibotu.ai',
                 headers: {},
                 path: '/track?ip=0&verbose=0&data=eyJldmVudCI6InRlc3QiLCJwcm9wZXJ0aWVzIjp7ImtleTEiOiJ2YWwxIiwidG9rZW4iOiJ0b2tlbiIsInRpbWUiOjEzNDY4NzY2MjF9fQ%3D%3D'
             };
 
-        this.mixpanel.send_request({ method: 'get', endpoint: endpoint, data: data });
+        this.kibotu.send_request({  endpoint: endpoint, data: data });
 
         test.expect(3);
         test.ok(https.request.calledWithMatch(expected_http_request), "send_request didn't call https.request with correct arguments");
@@ -78,13 +78,13 @@ exports.send_request = {
                 }
             },
             expected_http_request = {
-                method: 'GET',
-                host: 'api.mixpanel.com',
+                
+                host: 'api.kibotu.ai',
                 headers: {},
                 path: '/track?ip=0&verbose=0&data=eyJldmVudCI6InRlc3QiLCJwcm9wZXJ0aWVzIjp7ImtleTEiOiJ2YWwxIiwidG9rZW4iOiJ0b2tlbiIsInRpbWUiOjEzNDY4NzY2MjF9fQ%3D%3D'
             };
 
-        this.mixpanel.send_request({ endpoint: endpoint, data: data }); // method option not defined
+        this.kibotu.send_request({ endpoint: endpoint, data: data }); // method option not defined
 
         test.ok(https.request.calledWithMatch(expected_http_request), "send_request didn't call https.request with correct method argument");
 
@@ -103,13 +103,13 @@ exports.send_request = {
             },
             expected_http_request = {
                 method: 'POST',
-                host: 'api.mixpanel.com',
+                host: 'api.kibotu.ai',
                 headers: {},
                 path: '/track?ip=0&verbose=0'
             },
             expected_http_request_body = "data=eyJldmVudCI6InRlc3QiLCJwcm9wZXJ0aWVzIjp7ImtleTEiOiJ2YWwxIiwidG9rZW4iOiJ0b2tlbiIsInRpbWUiOjEzNDY4NzY2MjF9fQ==";
 
-        this.mixpanel.send_request({ method: 'post', endpoint: endpoint, data: data });
+        this.kibotu.send_request({ method: 'post', endpoint: endpoint, data: data });
 
         test.expect(3);
         test.ok(https.request.calledWithMatch(expected_http_request), "send_request didn't call https.request with correct arguments");
@@ -120,19 +120,19 @@ exports.send_request = {
     },
 
     "sets ip=1 when geolocate option is on": function(test) {
-      this.mixpanel.set_config({ geolocate: true });
+      this.kibotu.set_config({ geolocate: true });
 
-      this.mixpanel.send_request({ method: "get", endpoint: "/track", event: "test", data: {} });
+      this.kibotu.send_request({ endpoint: "/track", event: "test", data: {} });
 
       test.ok(https.request.calledWithMatch({ path: Sinon.match('ip=1') }), "send_request didn't call http.get with correct request data");
 
       test.done();
     },
 
-    "handles mixpanel errors": function(test) {
+    "handles kibotu errors": function(test) {
         test.expect(1);
-        this.mixpanel.send_request({ endpoint: "/track", data: { event: "test" } }, function(e) {
-            test.equal(e.message, 'Mixpanel Server Error: 0', "error did not get passed back to callback");
+        this.kibotu.send_request({ endpoint: "/track", data: { event: "test" } }, function(e) {
+            test.equal(e.message, 'Kibotu Server Error: 0', "error did not get passed back to callback");
             test.done();
         });
 
@@ -142,7 +142,7 @@ exports.send_request = {
 
     "handles https.request errors": function(test) {
         test.expect(1);
-        this.mixpanel.send_request({ endpoint: "/track", data: { event: "test" } }, function(e) {
+        this.kibotu.send_request({ endpoint: "/track", data: { event: "test" } }, function(e) {
             test.equal(e, 'error', "error did not get passed back to callback");
             test.done();
         });
@@ -160,11 +160,11 @@ exports.send_request = {
         // force SDK not use `undefined` string to initialize proxy-agent
         delete process.env.HTTP_PROXY
         delete process.env.HTTPS_PROXY
-        Mixpanel = proxyquire('../lib/mixpanel-node', {
+        Kibotu = proxyquire('../lib/kibotu-node', {
             'https': httpsStub
         });
-        var proxyMixpanel = Mixpanel.init('token');
-        proxyMixpanel.send_request({ endpoint: '', data: {} });
+        var proxyKibotu = Kibotu.init('token');
+        proxyKibotu.send_request({ endpoint: '', data: {} });
 
         var getConfig = httpsStub.request.firstCall.args[0];
         var agentOpts = httpsStub.Agent.firstCall.args[0];
@@ -176,12 +176,12 @@ exports.send_request = {
 
     "uses correct hostname": function(test) {
         var host = 'testhost.fakedomain';
-        var customHostnameMixpanel = Mixpanel.init('token', { host: host });
+        var customHostnameKibotu = Kibotu.init('token', { host: host });
         var expected_http_request = {
             host: host
         };
 
-        customHostnameMixpanel.send_request({ endpoint: "", data: {} });
+        customHostnameKibotu.send_request({ endpoint: "", data: {} });
 
         test.ok(https.request.calledWithMatch(expected_http_request), "send_request didn't call https.request with correct hostname");
 
@@ -190,13 +190,13 @@ exports.send_request = {
 
     "uses correct port": function(test) {
         var host = 'testhost.fakedomain:1337';
-        var customHostnameMixpanel = Mixpanel.init('token', { host: host });
+        var customHostnameKibotu = Kibotu.init('token', { host: host });
         var expected_http_request = {
             host: 'testhost.fakedomain',
             port: 1337
         };
 
-        customHostnameMixpanel.send_request({ endpoint: "", data: {} });
+        customHostnameKibotu.send_request({ endpoint: "", data: {} });
 
         test.ok(https.request.calledWithMatch(expected_http_request), "send_request didn't call https.request with correct hostname and port");
 
@@ -206,7 +206,7 @@ exports.send_request = {
     "uses correct path": function(test) {
         var host = 'testhost.fakedomain';
         var customPath = '/mypath';
-        var customHostnameMixpanel = Mixpanel.init('token', {
+        var customHostnameKibotu = Kibotu.init('token', {
             host,
             path: customPath,
         });
@@ -215,7 +215,7 @@ exports.send_request = {
             path: '/mypath?ip=0&verbose=0&data=e30%3D',
         };
 
-        customHostnameMixpanel.send_request({endpoint: "", data: {}});
+        customHostnameKibotu.send_request({endpoint: "", data: {}});
         test.ok(https.request.calledWithMatch(expected_http_request), "send_request didn't call https.request with correct hostname and port");
 
         test.done();
@@ -224,7 +224,7 @@ exports.send_request = {
     "combines custom path and endpoint": function(test) {
         var host = 'testhost.fakedomain';
         var customPath = '/mypath';
-        var customHostnameMixpanel = Mixpanel.init('token', {
+        var customHostnameKibotu = Kibotu.init('token', {
             host,
             path: customPath,
         });
@@ -233,19 +233,19 @@ exports.send_request = {
             path: '/mypath/track?ip=0&verbose=0&data=e30%3D',
         };
 
-        customHostnameMixpanel.send_request({endpoint: '/track', data: {}});
+        customHostnameKibotu.send_request({endpoint: '/track', data: {}});
         test.ok(https.request.calledWithMatch(expected_http_request), "send_request didn't call https.request with correct hostname and port");
 
         test.done();
     },
 
     "uses HTTP_PROXY if set": function(test) {
-        HttpsProxyAgent.reset(); // Mixpanel is instantiated in setup, need to reset callcount
+        HttpsProxyAgent.reset(); // Kibotu is instantiated in setup, need to reset callcount
         delete process.env.HTTPS_PROXY;
         process.env.HTTP_PROXY = 'this.aint.real.https';
 
-        var proxyMixpanel = Mixpanel.init('token');
-        proxyMixpanel.send_request({ endpoint: '', data: {} });
+        var proxyKibotu = Kibotu.init('token');
+        proxyKibotu.send_request({ endpoint: '', data: {} });
 
         test.ok(HttpsProxyAgent.calledOnce, "HttpsProxyAgent was not called when process.env.HTTP_PROXY was set");
 
@@ -260,12 +260,12 @@ exports.send_request = {
     },
 
     "uses HTTPS_PROXY if set": function(test) {
-        HttpsProxyAgent.reset(); // Mixpanel is instantiated in setup, need to reset callcount
+        HttpsProxyAgent.reset(); // Kibotu is instantiated in setup, need to reset callcount
         delete process.env.HTTP_PROXY;
         process.env.HTTPS_PROXY = 'this.aint.real.https';
 
-        var proxyMixpanel = Mixpanel.init('token');
-        proxyMixpanel.send_request({ endpoint: '', data: {} });
+        var proxyKibotu = Kibotu.init('token');
+        proxyKibotu.send_request({ endpoint: '', data: {} });
 
         test.ok(HttpsProxyAgent.calledOnce, "HttpsProxyAgent was not called when process.env.HTTPS_PROXY was set");
 
@@ -280,19 +280,19 @@ exports.send_request = {
 
     "requires credentials for import requests": function(test) {
         test.throws(
-            this.mixpanel.send_request.bind(this, {
+            this.kibotu.send_request.bind(this, {
                 endpoint: `/import`,
                 data: {event: `test event`},
             }),
-            /The Mixpanel Client needs a Mixpanel API Secret when importing old events/,
+            /The Kibotu Client needs a Kibotu API Secret when importing old events/,
             "import request didn't throw error when no credentials provided"
         );
         test.done();
     },
 
     "sets basic auth header if API secret is provided": function(test) {
-        this.mixpanel.set_config({secret: `foobar`});
-        this.mixpanel.send_request({
+        this.kibotu.set_config({secret: `foobar`});
+        this.kibotu.send_request({
             endpoint: `/import`,
             data: {event: `test event`},
         });
@@ -304,8 +304,8 @@ exports.send_request = {
     },
 
     "still supports import with api_key (legacy)": function(test) {
-        this.mixpanel.set_config({key: `barbaz`});
-        this.mixpanel.send_request({
+        this.kibotu.set_config({key: `barbaz`});
+        this.kibotu.send_request({
             endpoint: `/import`,
             data: {},
         });

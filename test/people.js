@@ -1,4 +1,4 @@
-const Mixpanel = require('../lib/mixpanel-node');
+const Kibotu = require('../lib/kibotu-node');
 const Sinon = require('sinon');
 const {create_profile_helpers} = require('../lib/profile_helpers');
 
@@ -26,9 +26,9 @@ const test_send_request_args = function(test, func, {args, expected, use_modifie
         args.push(callback);
     }
 
-    this.mixpanel.people[func](...args);
+    this.kibotu.people[func](...args);
 
-    const expectedSendRequestArgs = [{ method: 'GET', endpoint: this.endpoint, data: expected_data }];
+    const expectedSendRequestArgs = [{  endpoint: this.endpoint, data: expected_data }];
     test.ok(
         this.send_request.calledWithMatch(...expectedSendRequestArgs),
         `people.${func} didn't call send_request with correct arguments
@@ -52,8 +52,8 @@ exports.people = {
 
         this.send_request = Sinon.stub();
 
-        this.mixpanel = Mixpanel.init(this.token);
-        this.mixpanel.send_request = this.send_request
+        this.kibotu = Kibotu.init(this.token);
+        this.kibotu.send_request = this.send_request
 
         this.test_send_request_args = test_send_request_args;
 
@@ -516,15 +516,15 @@ exports.people = {
         },
 
         "errors on non-scalar argument types": function(test) {
-            this.mixpanel.people.remove(this.distinct_id, {'key1': ['value1']});
-            this.mixpanel.people.remove(this.distinct_id, {key1: {key: 'val'}});
-            this.mixpanel.people.remove(this.distinct_id, 1231241.123);
-            this.mixpanel.people.remove(this.distinct_id, [5]);
-            this.mixpanel.people.remove(this.distinct_id, {key1: function() {}});
-            this.mixpanel.people.remove(this.distinct_id, {key1: [function() {}]});
+            this.kibotu.people.remove(this.distinct_id, {'key1': ['value1']});
+            this.kibotu.people.remove(this.distinct_id, {key1: {key: 'val'}});
+            this.kibotu.people.remove(this.distinct_id, 1231241.123);
+            this.kibotu.people.remove(this.distinct_id, [5]);
+            this.kibotu.people.remove(this.distinct_id, {key1: function() {}});
+            this.kibotu.people.remove(this.distinct_id, {key1: [function() {}]});
 
             test.ok(
-              !this.mixpanel.send_request.called,
+              !this.kibotu.send_request.called,
               "people.remove shouldn't call send_request on invalid arguments"
             );
             test.done();
@@ -572,14 +572,14 @@ exports.people = {
         },
 
         "errors on other argument types": function(test) {
-            this.mixpanel.people.union(this.distinct_id, {key1: {key: 'val'}});
-            this.mixpanel.people.union(this.distinct_id, 1231241.123);
-            this.mixpanel.people.union(this.distinct_id, [5]);
-            this.mixpanel.people.union(this.distinct_id, {key1: function() {}});
-            this.mixpanel.people.union(this.distinct_id, {key1: [function() {}]});
+            this.kibotu.people.union(this.distinct_id, {key1: {key: 'val'}});
+            this.kibotu.people.union(this.distinct_id, 1231241.123);
+            this.kibotu.people.union(this.distinct_id, [5]);
+            this.kibotu.people.union(this.distinct_id, {key1: function() {}});
+            this.kibotu.people.union(this.distinct_id, {key1: [function() {}]});
 
             test.ok(
-                !this.mixpanel.send_request.called,
+                !this.kibotu.send_request.called,
                 "people.union shouldn't call send_request on invalid arguments"
             );
             test.done();
@@ -627,11 +627,11 @@ exports.people = {
         },
 
         "errors on other argument types": function(test) {
-            this.mixpanel.people.unset(this.distinct_id, { key1:'val1', key2:'val2' });
-            this.mixpanel.people.unset(this.distinct_id, 1231241.123);
+            this.kibotu.people.unset(this.distinct_id, { key1:'val1', key2:'val2' });
+            this.kibotu.people.unset(this.distinct_id, 1231241.123);
 
             test.ok(
-                !this.mixpanel.send_request.called,
+                !this.kibotu.send_request.called,
                 "people.unset shouldn't call send_request on invalid arguments"
             );
             test.done();

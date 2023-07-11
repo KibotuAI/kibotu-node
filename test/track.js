@@ -2,23 +2,23 @@ var proxyquire  = require('proxyquire'),
     Sinon       = require('sinon'),
     https       = require('https'),
     events      = require('events'),
-    Mixpanel    = require('../lib/mixpanel-node'),
+    Kibotu    = require('../lib/kibotu-node'),
     packageInfo = require('../package.json');
 
 var mock_now_time = new Date(2016, 1, 1).getTime();
 
 exports.track = {
     setUp: function(next) {
-        this.mixpanel = Mixpanel.init('token');
+        this.kibotu = Kibotu.init('token');
         this.clock = Sinon.useFakeTimers(mock_now_time);
 
-        Sinon.stub(this.mixpanel, 'send_request');
+        Sinon.stub(this.kibotu, 'send_request');
 
         next();
     },
 
     tearDown: function(next) {
-        this.mixpanel.send_request.restore();
+        this.kibotu.send_request.restore();
         this.clock.restore();
 
         next();
@@ -36,10 +36,10 @@ exports.track = {
                 }
             };
 
-        this.mixpanel.track(event, props);
+        this.kibotu.track(event, props);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "track didn't call send_request with correct arguments"
         );
 
@@ -55,10 +55,10 @@ exports.track = {
                 }
             };
 
-        this.mixpanel.track("test");
+        this.kibotu.track("test");
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "track didn't call send_request with correct arguments"
         );
         test.done();
@@ -73,10 +73,10 @@ exports.track = {
                 }
             };
 
-        this.mixpanel.send_request.callsArgWith(1, undefined);
+        this.kibotu.send_request.callsArgWith(1, undefined);
 
         test.expect(1);
-        this.mixpanel.track("test", function(e) {
+        this.kibotu.track("test", function(e) {
             test.equal(e, undefined, "error should be undefined");
             test.done();
         });
@@ -97,10 +97,10 @@ exports.track = {
                 }
             };
 
-        this.mixpanel.track(event, props);
+        this.kibotu.track(event, props);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "track didn't call send_request with correct arguments"
         );
         test.done();
@@ -121,10 +121,10 @@ exports.track = {
                 }
             };
 
-        this.mixpanel.track(event, props);
+        this.kibotu.track(event, props);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "track didn't call send_request with correct arguments"
         );
         test.done();
@@ -135,7 +135,7 @@ exports.track = {
             props = { time: 'not a number or Date' };
 
         test.throws(
-            this.mixpanel.track.bind(this, event, props),
+            this.kibotu.track.bind(this, event, props),
             /`time` property must be a Date or Unix timestamp/,
             "track didn't throw an error when time wasn't a number or Date"
         );
@@ -146,21 +146,21 @@ exports.track = {
         var event = 'test',
             props = {};
 
-        test.doesNotThrow(this.mixpanel.track.bind(this, event, props));
+        test.doesNotThrow(this.kibotu.track.bind(this, event, props));
         test.done();
     }
 };
 
 exports.track_batch = {
     setUp: function(next) {
-        this.mixpanel = Mixpanel.init('token');
+        this.kibotu = Kibotu.init('token');
         this.clock = Sinon.useFakeTimers();
-        Sinon.stub(this.mixpanel, 'send_request');
+        Sinon.stub(this.kibotu, 'send_request');
         next();
     },
 
     tearDown: function(next) {
-        this.mixpanel.send_request.restore();
+        this.kibotu.send_request.restore();
         this.clock.restore();
         next();
     },
@@ -178,10 +178,10 @@ exports.track_batch = {
                 {event: 'test2', properties: {key2: 'val2', time: 1500, token: 'token'}}
             ];
 
-        this.mixpanel.track_batch(event_list);
+        this.kibotu.track_batch(event_list);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({
+            this.kibotu.send_request.calledWithMatch({
                 method: "POST",
                 endpoint: expected_endpoint,
                 data: expected_data
@@ -198,7 +198,7 @@ exports.track_batch = {
             {event: 'test',  properties: {key2: 'val2', time: 1000}},
             {event: 'test2', properties: {key2: 'val2'            }}
         ];
-        test.doesNotThrow(this.mixpanel.track_batch.bind(this, event_list));
+        test.doesNotThrow(this.kibotu.track_batch.bind(this, event_list));
         test.done();
     },
 
@@ -208,10 +208,10 @@ exports.track_batch = {
             event_list.push({event: 'test',  properties: {key1: 'val1', time: 500 + ei }});
         }
 
-        this.mixpanel.track_batch(event_list);
+        this.kibotu.track_batch(event_list);
 
         test.equals(
-            3, this.mixpanel.send_request.callCount,
+            3, this.kibotu.send_request.callCount,
             "track_batch didn't call send_request correct number of times"
         );
 
@@ -221,7 +221,7 @@ exports.track_batch = {
 
 exports.track_batch_integration = {
     setUp: function(next) {
-        this.mixpanel = Mixpanel.init('token', { key: 'key' });
+        this.kibotu = Kibotu.init('token', { key: 'key' });
         this.clock = Sinon.useFakeTimers();
 
         Sinon.stub(https, 'request');
@@ -257,7 +257,7 @@ exports.track_batch_integration = {
 
     "calls provided callback after all requests finish": function(test) {
         test.expect(2);
-        this.mixpanel.track_batch(this.event_list, function(error_list) {
+        this.kibotu.track_batch(this.event_list, function(error_list) {
             test.equals(
                 3, https.request.callCount,
                 "track_batch didn't call send_request correct number of times before callback"
@@ -276,7 +276,7 @@ exports.track_batch_integration = {
 
     "passes error list to callback": function(test) {
         test.expect(1);
-        this.mixpanel.track_batch(this.event_list, function(error_list) {
+        this.kibotu.track_batch(this.event_list, function(error_list) {
             test.equals(
                 3, error_list.length,
                 "track_batch didn't return errors in callback"
@@ -291,7 +291,7 @@ exports.track_batch_integration = {
 
     "calls provided callback when options are passed": function(test) {
         test.expect(2);
-        this.mixpanel.track_batch(this.event_list, {max_batch_size: 100}, function(error_list) {
+        this.kibotu.track_batch(this.event_list, {max_batch_size: 100}, function(error_list) {
             test.equals(
                 3, https.request.callCount,
                 "track_batch didn't call send_request correct number of times before callback"
@@ -310,7 +310,7 @@ exports.track_batch_integration = {
 
     "sends more requests when max_batch_size < 50": function(test) {
         test.expect(2);
-        this.mixpanel.track_batch(this.event_list, {max_batch_size: 30}, function(error_list) {
+        this.kibotu.track_batch(this.event_list, {max_batch_size: 30}, function(error_list) {
             test.equals(
                 5, https.request.callCount, // 30 + 30 + 30 + 30 + 10
                 "track_batch didn't call send_request correct number of times before callback"
@@ -329,14 +329,14 @@ exports.track_batch_integration = {
 
     "can set max concurrent requests": function(test) {
         var async_all_stub = Sinon.stub();
-        var PatchedMixpanel = proxyquire('../lib/mixpanel-node', {
+        var PatchedKibotu = proxyquire('../lib/kibotu-node', {
             './utils': {async_all: async_all_stub},
         });
         async_all_stub.callsArgWith(2, null);
-        this.mixpanel = PatchedMixpanel.init('token', { key: 'key' });
+        this.kibotu = PatchedKibotu.init('token', { key: 'key' });
 
         test.expect(2);
-        this.mixpanel.track_batch(this.event_list, {max_batch_size: 30, max_concurrent_requests: 2}, function(error_list) {
+        this.kibotu.track_batch(this.event_list, {max_batch_size: 30, max_concurrent_requests: 2}, function(error_list) {
             // should send 5 event batches over 3 request batches:
             // request batch 1: 30 events, 30 events
             // request batch 2: 30 events, 30 events
@@ -359,12 +359,12 @@ exports.track_batch_integration = {
 
     "behaves well without a callback": function(test) {
         test.expect(2);
-        this.mixpanel.track_batch(this.event_list);
+        this.kibotu.track_batch(this.event_list);
         test.equals(
             3, https.request.callCount,
             "track_batch didn't call send_request correct number of times"
         );
-        this.mixpanel.track_batch(this.event_list, {max_batch_size: 100});
+        this.kibotu.track_batch(this.event_list, {max_batch_size: 100});
         test.equals(
             5, https.request.callCount, // 3 + 100 / 50; last request starts async
             "track_batch didn't call send_request correct number of times"

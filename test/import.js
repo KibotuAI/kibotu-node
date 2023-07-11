@@ -2,23 +2,23 @@ var proxyquire = require('proxyquire'),
     Sinon      = require('sinon'),
     https      = require('https'),
     events     = require('events'),
-    Mixpanel   = require('../lib/mixpanel-node');
+    Kibotu   = require('../lib/kibotu-node');
 
 var mock_now_time = new Date(2016, 1, 1).getTime(),
     six_days_ago_timestamp = mock_now_time - (1000 * 60 * 60 * 24 * 6);
 
 exports.import = {
     setUp: function(next) {
-        this.mixpanel = Mixpanel.init('token', { secret: 'my api secret' });
+        this.kibotu = Kibotu.init('token', { secret: 'my api secret' });
         this.clock = Sinon.useFakeTimers(mock_now_time);
 
-        Sinon.stub(this.mixpanel, 'send_request');
+        Sinon.stub(this.kibotu, 'send_request');
 
         next();
     },
 
     tearDown: function(next) {
-        this.mixpanel.send_request.restore();
+        this.kibotu.send_request.restore();
         this.clock.restore();
 
         next();
@@ -38,10 +38,10 @@ exports.import = {
                 }
             };
 
-        this.mixpanel.import(event, time, props);
+        this.kibotu.import(event, time, props);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "import didn't call send_request with correct arguments"
         );
 
@@ -62,10 +62,10 @@ exports.import = {
                 }
             };
 
-        this.mixpanel.import(event, time, props);
+        this.kibotu.import(event, time, props);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "import didn't call send_request with correct arguments"
         );
 
@@ -86,10 +86,10 @@ exports.import = {
                 }
             };
 
-        this.mixpanel.import(event, time, props);
+        this.kibotu.import(event, time, props);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "import didn't call send_request with correct arguments"
         );
 
@@ -110,10 +110,10 @@ exports.import = {
                 }
             };
 
-        this.mixpanel.import(event, time, props);
+        this.kibotu.import(event, time, props);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
+            this.kibotu.send_request.calledWithMatch({ endpoint: expected_endpoint, data: expected_data }),
             "import didn't call send_request with correct arguments"
         );
 
@@ -121,15 +121,15 @@ exports.import = {
     },
 
     "requires the time argument to be a number or Date": function(test) {
-        test.doesNotThrow(this.mixpanel.import.bind(this, 'test', new Date()));
-        test.doesNotThrow(this.mixpanel.import.bind(this, 'test', Date.now()));
+        test.doesNotThrow(this.kibotu.import.bind(this, 'test', new Date()));
+        test.doesNotThrow(this.kibotu.import.bind(this, 'test', Date.now()));
         test.throws(
-            this.mixpanel.import.bind(this, 'test', 'not a number or Date'),
+            this.kibotu.import.bind(this, 'test', 'not a number or Date'),
             /`time` property must be a Date or Unix timestamp/,
             "import didn't throw an error when time wasn't a number or Date"
         );
         test.throws(
-            this.mixpanel.import.bind(this, 'test'),
+            this.kibotu.import.bind(this, 'test'),
             /`time` property must be a Date or Unix timestamp/,
             "import didn't throw an error when time wasn't specified"
         );
@@ -140,16 +140,16 @@ exports.import = {
 
 exports.import_batch = {
     setUp: function(next) {
-        this.mixpanel = Mixpanel.init('token', { secret: 'my api secret' });
+        this.kibotu = Kibotu.init('token', { secret: 'my api secret' });
         this.clock = Sinon.useFakeTimers();
 
-        Sinon.stub(this.mixpanel, 'send_request');
+        Sinon.stub(this.kibotu, 'send_request');
 
         next();
     },
 
     tearDown: function(next) {
-        this.mixpanel.send_request.restore();
+        this.kibotu.send_request.restore();
         this.clock.restore();
 
         next();
@@ -168,10 +168,10 @@ exports.import_batch = {
                 {event: 'test2', properties: {key2: 'val2', time: 1500, token: 'token'}}
             ];
 
-        this.mixpanel.import_batch(event_list);
+        this.kibotu.import_batch(event_list);
 
         test.ok(
-            this.mixpanel.send_request.calledWithMatch({
+            this.kibotu.send_request.calledWithMatch({
                 method: 'POST',
                 endpoint: expected_endpoint,
                 data: expected_data
@@ -189,7 +189,7 @@ exports.import_batch = {
                 {event: 'test2', properties: {key2: 'val2'            }}
             ];
         test.throws(
-            function() { this.mixpanel.import_batch(event_list); },
+            function() { this.kibotu.import_batch(event_list); },
             "Import methods require you to specify the time of the event",
             "import didn't throw an error when time wasn't specified"
         );
@@ -203,10 +203,10 @@ exports.import_batch = {
             event_list.push({event: 'test',  properties: {key1: 'val1', time: 500 + ei }});
         }
 
-        this.mixpanel.import_batch(event_list);
+        this.kibotu.import_batch(event_list);
 
         test.equals(
-            3, this.mixpanel.send_request.callCount,
+            3, this.kibotu.send_request.callCount,
             "import_batch didn't call send_request correct number of times"
         );
 
@@ -216,7 +216,7 @@ exports.import_batch = {
 
 exports.import_batch_integration = {
     setUp: function(next) {
-        this.mixpanel = Mixpanel.init('token', { secret: 'my api secret' });
+        this.kibotu = Kibotu.init('token', { secret: 'my api secret' });
         this.clock = Sinon.useFakeTimers();
 
         Sinon.stub(https, 'request');
@@ -252,7 +252,7 @@ exports.import_batch_integration = {
 
     "calls provided callback after all requests finish": function(test) {
         test.expect(2);
-        this.mixpanel.import_batch(this.event_list, function(error_list) {
+        this.kibotu.import_batch(this.event_list, function(error_list) {
             test.equals(
                 3, https.request.callCount,
                 "import_batch didn't call send_request correct number of times before callback"
@@ -271,7 +271,7 @@ exports.import_batch_integration = {
 
     "passes error list to callback": function(test) {
         test.expect(1);
-        this.mixpanel.import_batch(this.event_list, function(error_list) {
+        this.kibotu.import_batch(this.event_list, function(error_list) {
             test.equals(
                 3, error_list.length,
                 "import_batch didn't return errors in callback"
@@ -286,7 +286,7 @@ exports.import_batch_integration = {
 
     "calls provided callback when options are passed": function(test) {
         test.expect(2);
-        this.mixpanel.import_batch(this.event_list, {max_batch_size: 100}, function(error_list) {
+        this.kibotu.import_batch(this.event_list, {max_batch_size: 100}, function(error_list) {
             test.equals(
                 3, https.request.callCount,
                 "import_batch didn't call send_request correct number of times before callback"
@@ -305,7 +305,7 @@ exports.import_batch_integration = {
 
     "sends more requests when max_batch_size < 50": function(test) {
         test.expect(2);
-        this.mixpanel.import_batch(this.event_list, {max_batch_size: 30}, function(error_list) {
+        this.kibotu.import_batch(this.event_list, {max_batch_size: 30}, function(error_list) {
             test.equals(
                 5, https.request.callCount, // 30 + 30 + 30 + 30 + 10
                 "import_batch didn't call send_request correct number of times before callback"
@@ -324,14 +324,14 @@ exports.import_batch_integration = {
 
     "can set max concurrent requests": function(test) {
         var async_all_stub = Sinon.stub();
-        var PatchedMixpanel = proxyquire('../lib/mixpanel-node', {
+        var PatchedKibotu = proxyquire('../lib/kibotu-node', {
             './utils': {async_all: async_all_stub},
         });
         async_all_stub.callsArgWith(2, null);
-        this.mixpanel = PatchedMixpanel.init('token', { secret: 'my api secret' });
+        this.kibotu = PatchedKibotu.init('token', { secret: 'my api secret' });
 
         test.expect(2);
-        this.mixpanel.import_batch(this.event_list, {max_batch_size: 30, max_concurrent_requests: 2}, function(error_list) {
+        this.kibotu.import_batch(this.event_list, {max_batch_size: 30, max_concurrent_requests: 2}, function(error_list) {
             // should send 5 event batches over 3 request batches:
             // request batch 1: 30 events, 30 events
             // request batch 2: 30 events, 30 events
@@ -354,12 +354,12 @@ exports.import_batch_integration = {
 
     "behaves well without a callback": function(test) {
         test.expect(2);
-        this.mixpanel.import_batch(this.event_list);
+        this.kibotu.import_batch(this.event_list);
         test.equals(
             3, https.request.callCount,
             "import_batch didn't call send_request correct number of times"
         );
-        this.mixpanel.import_batch(this.event_list, {max_batch_size: 100});
+        this.kibotu.import_batch(this.event_list, {max_batch_size: 100});
         test.equals(
             5, https.request.callCount, // 3 + 100 / 50; last request starts async
             "import_batch didn't call send_request correct number of times"

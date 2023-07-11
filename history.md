@@ -66,7 +66,7 @@ or `HTTP_PROXY` (thanks colestrode)
 
 0.6.0 / 2017-01-03
 ===================
-* support for `time` field in `mixpanel.track()` (thanks cruzanmo)
+* support for `time` field in `kibotu.track()` (thanks cruzanmo)
 
 0.5.0 / 2016-09-15
 ===================
@@ -137,7 +137,7 @@ or `HTTP_PROXY` (thanks colestrode)
 
 0.0.14 / 2013-03-28
 ====================
-* revert Randal's http only patch since Mixpanel indeed supports https.
+* revert Randal's http only patch since Kibotu indeed supports https.
 * handles the ip property in a property object properly for people calls
 
 0.0.13 / 2013-03-25
@@ -147,7 +147,7 @@ or `HTTP_PROXY` (thanks colestrode)
 0.0.12 / 2013-01-24
 ====================
 * track_charge() no longer includes $time by default, rather it lets
-Mixpanel's servers set the time when they receive the transaction.  This
+Kibotu's servers set the time when they receive the transaction.  This
 doesn't modify the ability for the user to pass in their own $time (for
 importing transactions).
 
@@ -156,7 +156,7 @@ importing transactions).
 * added track_charge() method which provides the ability to record user
 transactions for revenue analytics.
 * added clear_charges() method which provides the ability to remove a
-users transactions from Mixpanel
+users transactions from Kibotu
 * added tests for delete_user()
 
 0.0.10 / 2012-11-26
@@ -167,7 +167,7 @@ older than 5 days.  Contributions from Thomas Watson Steen.
 0.0.9 / 2012-11-15
 ===================
 * removed time from properties sent to server.  This is to ensure that
-UTC is always used.  Mixpanel will set the correct time as soon as they
+UTC is always used.  Kibotu will set the correct time as soon as they
 receive the event.
 
 0.0.8 / 2012-10-24
@@ -185,5 +185,5 @@ receive the event.
   * people.set()
   * people.increment()
   * people.delete_user()
-* deprecated old constructor: require("mixpanel").Client(token)
-* added new constructor: require("mixpanel").init(token)
+* deprecated old constructor: require("kibotu").Client(token)
+* added new constructor: require("kibotu").init(token)
