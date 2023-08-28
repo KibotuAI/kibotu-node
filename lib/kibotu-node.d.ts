@@ -47,6 +47,9 @@ declare namespace kibotu {
   interface Kibotu {
     init(kibotuToken: string, config?: InitConfig): Kibotu;
 
+    get_feature(featureName: string, distinct_id: string, propOverrides?: object, callback?: Callback): object;
+    warmup_feature(featureName: string, distinct_id: string): object;
+
     track(eventName: string, callback?: Callback): void;
     track(eventName: string, properties: PropertyDict, callback?: Callback): void;
 
