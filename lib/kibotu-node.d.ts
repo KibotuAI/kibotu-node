@@ -48,6 +48,7 @@ declare namespace kibotu {
     init(kibotuToken: string, config?: InitConfig): Kibotu;
 
     get_feature(featureName: string, distinct_id: string, predict_id: string, propOverrides?: object, callback?: Callback): object;
+    get_special_offer(trigger: string, distinct_id: string, predict_id: string): object;
 
     track(eventName: string, callback?: Callback): void;
     track(eventName: string, properties: PropertyDict, callback?: Callback): void;
